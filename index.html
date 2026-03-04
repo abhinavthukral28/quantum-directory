@@ -313,7 +313,7 @@ footer a:hover{text-decoration:underline}
   </div>
   <div class="results-bar">
     <span class="results-n" id="resultsN"></span>
-    <button class="export-btn" id="exportBtn" title="Export filtered results as CSV">
+    <button class="export-btn" id="exportBtn" title="Export filtered results as CSV" style="display:none">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Export CSV
     </button>
@@ -451,6 +451,8 @@ function exportCSV(){
   URL.revokeObjectURL(url);
 }
 
+// Show export button after Thu Mar 6 2026 3:00 PM EST
+if(Date.now()>=new Date('2026-03-06T15:00:00-05:00').getTime())$('exportBtn').style.display='';
 $('exportBtn').addEventListener('click',exportCSV);
 si.addEventListener('input',render);
 fc.addEventListener('change',render);
