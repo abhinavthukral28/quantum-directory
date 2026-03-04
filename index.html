@@ -126,6 +126,14 @@ body{
   font-size:0.8rem;font-weight:500;color:var(--text-muted);
 }
 .results-n b{color:var(--accent);font-weight:600}
+.export-btn{
+  padding:0.45rem 1rem;border:1px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--bg-card);color:var(--text);font-family:inherit;
+  font-size:0.8rem;font-weight:500;cursor:pointer;
+  transition:border-color 0.2s,background 0.2s;display:flex;align-items:center;gap:0.4rem;
+}
+.export-btn:hover{border-color:var(--accent);color:var(--accent)}
+.export-btn svg{width:14px;height:14px}
 
 /* ── Card Grid ───────────────────────────── */
 .grid{
@@ -303,7 +311,13 @@ footer a:hover{text-decoration:underline}
       <option value="year_asc">Oldest</option>
     </select>
   </div>
-  <div class="results-bar"><span class="results-n" id="resultsN"></span></div>
+  <div class="results-bar">
+    <span class="results-n" id="resultsN"></span>
+    <button class="export-btn" id="exportBtn" title="Export filtered results as CSV">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export CSV
+    </button>
+  </div>
 </div>
 </div>
 
@@ -377,6 +391,7 @@ function render(){
     if(sb==='year_asc')return(a.year_int||9999)-(b.year_int||9999);
     return 0;
   });
+  filtered=f;
   rn.innerHTML=`<b>${f.length}</b> of ${D.length} companies`;
   if(!f.length){grd.innerHTML='<div class="empty"><h3>No matches</h3><p>Try adjusting your search or filters.</p></div>';return}
 
@@ -416,6 +431,27 @@ function render(){
   }).join('');
 }
 
+let filtered=D;
+
+function exportCSV(){
+  const headers=['Name','URL','HQ Location','Year','Size','Description','Tags'];
+  const esc=v=>{
+    const s=String(v||'').replace(/"/g,'""');
+    return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s}"`:s;
+  };
+  const csvRows=[headers.join(',')];
+  filtered.forEach(c=>{
+    csvRows.push([esc(c.name),esc(c.url),esc(c.location),esc(c.year),esc(c.size),esc(c.description),esc(c.tags.join(', '))].join(','));
+  });
+  const blob=new Blob([csvRows.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='quantum_directory_export.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+$('exportBtn').addEventListener('click',exportCSV);
 si.addEventListener('input',render);
 fc.addEventListener('change',render);
 ft.addEventListener('change',render);
